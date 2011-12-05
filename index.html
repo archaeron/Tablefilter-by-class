@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
+	<script src="visualsearch/dependencies.js"></script>
+	<script src="visualsearch/visualsearch.js"></script>
+	<script src="tableclass.js"></script>
+
+	<link href="visualsearch/visualsearch-datauri.css" media="screen" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<div class="visual_search"></div>
+
+	<table class="tab sortable filter_sort" id="cupboard">
+		<thead>
+		<tr>
+			<th width="25%">
+				Name
+			</th>
+			<th width="15%">
+				Ort
+			</th>
+			<th width="15%">
+				Mobilität
+			</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>
+				<a href="#" class="name"><span class="vorname">Bildtest</span> <span class="nachname">Bildtest</span></a>
+				<p class="telefon">12345677</p>
+			</td>
+			<td>
+				<p class="strasse">Kannonengasse 45</p>
+				<span class="postleitzahl">8400</span> <span class="ort">Zürich</span>
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<a href="#" class="name"><span class="vorname">First name</span> <span class="nachname">Last name</span></a>
+				<p class="mobil">0777777777</p>
+				<p class="telefon">041111111</p>
+			</td>
+			<td>
+				<p class="strasse">Eichstrasse 51</p>
+				<span class="postleitzahl">7000</span> <span class="ort">Chur</span>
+			</td>
+			<td>
+				GA<br/>Fahrausweis<br/>Eigenes Auto
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<a href="#" class="name"><span class="vorname">Frank</span> <span class="nachname">Cho</span></a>
+				<p class="mobil">066666666</p>
+				<p class="telefon">0454554545</p>
+			</td>
+			<td>
+				<p class="strasse">Kannonengasse 45</p>
+				<span class="postleitzahl">8000</span> <span class="ort">Zürich</span>
+			</td>
+			<td>
+				GA<br/>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<style>
+		.hidden
+		{
+			display: none;
+		}
+	</style>
+	<script>
+		$(document).ready(function()
+		{
+			var t = new TableClass($('.filter_sort'));
+
+			var visualSearch = VS.init(
+				{
+				container : $('.visual_search'),
+				query     : '',
+				callbacks :
+					{
+						search : function(query, searchCollection)
+							{
+								var i, len, label,
+									facets = visualSearch.searchQuery.facets(),
+									op = { operation : 'and', terms: []};
+									
+								for(i = 0, len = facets.length; i < len; i++)
+								{
+									var facet = facets[i];
+									for(label in facet)
+									{
+										if(label === 'text')
+										{
+											op.terms.push({value: facet[label], whole_row: true});
+										}
+										else
+										{
+											op.terms.push({name: label, value: facet[label]});
+										}
+										console.log(label);
+										console.log(facet[label]);
+										
+									}
+								}
+								t.search(op);
+								console.log(op);
+							},
+						facetMatches : function(callback)
+							{
+								callback(['vorname', 'nachname', 'name', 'telefon', 'strasse', 'postleitzahl', 'ort']);
+							},
+						valueMatches : function(facet, searchTerm, callback)
+							{
+								
+							}
+					}
+				}
+			);
+	});
+	</script>
+</body>
+</html>
