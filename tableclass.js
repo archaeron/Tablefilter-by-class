@@ -5,10 +5,16 @@
     hiddenClass: 'hidden'
   };
 
-  search_in_element = function(query, $elem) {
-    var value;
-    value = $elem.attr('data-value');
-    value = value ? value : $elem.text();
+  search_in_element = function(query, label, $row, additional_data) {
+    var $element, value;
+    $element = $row.find('.' + label);
+    if ($element.length) {
+      value = $element.attr('data-value');
+      value = value ? value : $element.text();
+    } else {
+      value = additional_data[label];
+      if (value === null) value = '';
+    }
     value = value.toLowerCase();
     query = query.toLowerCase();
     return value.indexOf(query) > -1;
@@ -22,15 +28,18 @@
   };
 
   search_and = function(terms, $row) {
-    var $element, passed_branch, term, _i, _len;
+    var additional_data, passed_branch, term, _i, _len;
+    additional_data = $row.attr('data-additional-data');
+    additional_data = JSON.parse(additional_data);
     for (_i = 0, _len = terms.length; _i < _len; _i++) {
       term = terms[_i];
       if (!(term.operation != null)) {
-        $element = $row.find('.' + term.name);
         if (term.whole_row) {
-          if (!search_in_row(term.value, $row)) return false;
+          if (!search_in_row(term.value, $row, additional_data)) return false;
         } else {
-          if (!search_in_element(term.value, $element)) return false;
+          if (!search_in_element(term.value, term.name, $row, additional_data)) {
+            return false;
+          }
         }
       } else {
         passed_branch = choose_op(term, $row);
@@ -60,7 +69,6 @@
       var $row, passed, row, _i, _len, _ref, _ref2;
       this.$rows.removeClass(options.hiddenClass);
       if (!(searchparams != null ? (_ref = searchparams.terms) != null ? _ref.length : void 0 : void 0)) {
-        console.log('aborting, no params');
         return;
       }
       _ref2 = this.$rows;

@@ -2,10 +2,18 @@
 options =
 	hiddenClass: 'hidden'
 
-search_in_element = (query, $elem) ->
-	value = $elem.attr('data-value')
+search_in_element = (query, label, $row, additional_data) ->
+	$element = $row.find('.'+label)
 
-	value = if value then value else $elem.text()
+	if $element.length
+		value = $element.attr('data-value')
+
+		value = if value then value else $element.text()
+
+	else
+		value = additional_data[label]
+		if value == null
+			value = ''
 	
 	value = value.toLowerCase()
 	query = query.toLowerCase()
@@ -19,16 +27,19 @@ search_in_row = (query, $row) ->
 
 search_and = (terms, $row) ->
 
+	additional_data = $row.attr('data-additional-data')
+	additional_data = JSON.parse(additional_data)
+
 	for term in terms
 
 		if not term.operation?
-			$element = $row.find('.'+term.name)
+			
 
 			if term.whole_row
-				if not search_in_row(term.value, $row)
+				if not search_in_row(term.value, $row, additional_data)
 					return false
 			else
-				if not search_in_element(term.value, $element)
+				if not search_in_element(term.value, term.name, $row, additional_data)
 					return false
 
 		else
@@ -54,7 +65,6 @@ class TableClass
 		@$rows.removeClass(options.hiddenClass)
 
 		if not searchparams?.terms?.length
-			console.log('aborting, no params')
 			return
 
 		for row in @$rows
@@ -64,7 +74,6 @@ class TableClass
 
 			if not passed
 				$row.addClass(options.hiddenClass)
-
 		return
 
 
