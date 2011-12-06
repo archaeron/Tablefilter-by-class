@@ -1,8 +1,20 @@
 (function() {
-  var TableClass, choose_op, exports, options, search_and, search_in_element, search_in_row;
+  var TableClass, choose_op, comparators, exports, options, search_and, search_in_element, search_in_row;
 
   options = {
-    hiddenClass: 'hidden'
+    hiddenClass: 'hidden',
+    equalityComparator: 'ignoreCase'
+  };
+
+  comparators = {
+    ignoreCase: function(query, value) {
+      query = query.toLowerCase();
+      value = value.toLowerCase();
+      return value.indexOf(query) > -1;
+    },
+    useCase: function(query, value) {
+      return value.indexOf(query) > -1;
+    }
   };
 
   search_in_element = function(query, label, $row, additional_data) {
@@ -15,16 +27,13 @@
       value = additional_data[label];
       if (value === null) value = '';
     }
-    value = value.toLowerCase();
-    query = query.toLowerCase();
-    return value.indexOf(query) > -1;
+    return options.equalityComparator(query, value);
   };
 
   search_in_row = function(query, $row) {
-    var to_search;
-    to_search = $row.text().toLowerCase();
-    query = query.toLowerCase();
-    return to_search.indexOf(query) > -1;
+    var value;
+    value = $row.text();
+    return options.equalityComparator(query, value);
   };
 
   search_and = function(terms, $row) {
@@ -61,9 +70,23 @@
 
     TableClass.VERSION = '0.0.1';
 
+    TableClass.prototype.comparators = comparators;
+
     function TableClass($table, opt) {
+      options = $.extend(options, opt);
       this.$rows = $table.find('tbody tr');
+      this.setEqualityComparator(options.equalityComparator);
     }
+
+    TableClass.prototype.setEqualityComparator = function(comparator) {
+      var type;
+      type = Object.prototype.toString.call(comparator);
+      if (type === '[object String]') {
+        options.equalityComparator = this.comparators[comparator];
+      } else {
+        options.equalityComparator = comparator;
+      }
+    };
 
     TableClass.prototype.search = function(searchparams) {
       var $row, passed, row, _i, _len, _ref, _ref2;

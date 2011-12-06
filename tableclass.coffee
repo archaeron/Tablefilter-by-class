@@ -1,6 +1,16 @@
 
 options =
 	hiddenClass: 'hidden'
+	equalityComparator: 'ignoreCase'
+
+comparators =
+	ignoreCase: (query, value) ->
+		query = query.toLowerCase()
+		value = value.toLowerCase()
+		return value.indexOf(query) > -1
+	useCase: (query, value) ->
+		return value.indexOf(query) > -1
+
 
 search_in_element = (query, label, $row, additional_data) ->
 	$element = $row.find('.'+label)
@@ -15,15 +25,12 @@ search_in_element = (query, label, $row, additional_data) ->
 		if value == null
 			value = ''
 	
-	value = value.toLowerCase()
-	query = query.toLowerCase()
-
-	return value.indexOf(query) > -1
+	return options.equalityComparator(query, value)
 
 search_in_row = (query, $row) ->
-	to_search = $row.text().toLowerCase();
-	query = query.toLowerCase();
-	return to_search.indexOf(query) > -1
+	value = $row.text()
+
+	return options.equalityComparator(query, value)
 
 search_and = (terms, $row) ->
 
@@ -56,9 +63,23 @@ choose_op = (parameter, $row) ->
 
 class TableClass
 	@VERSION: '0.0.1'
+	comparators: comparators
 	constructor: ($table, opt) ->
-
+		options = $.extend(options, opt)
 		@$rows = $table.find('tbody tr')
+
+		@setEqualityComparator options.equalityComparator
+
+
+	setEqualityComparator: (comparator) ->
+		type = Object.prototype.toString.call(comparator)
+		if type is '[object String]'
+			options.equalityComparator = @comparators[comparator]
+		else
+			options.equalityComparator = comparator
+		return
+
+
 
 	search: (searchparams) ->
 
