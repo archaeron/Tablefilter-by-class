@@ -3,7 +3,7 @@ options =
 	hiddenClass: 'hidden'
 	equalityComparator: 'ignoreCase'
 
-comparators =
+equalityComparators =
 	ignoreCase: (query, value) ->
 		query = query.toLowerCase()
 		value = value.toLowerCase()
@@ -22,9 +22,9 @@ search_in_element = (query, label, $row, additional_data) ->
 
 	else
 		value = additional_data[label]
-		if value == null
+		if not value?
 			value = ''
-	
+
 	return options.equalityComparator(query, value)
 
 search_in_row = (query, $row) ->
@@ -74,7 +74,7 @@ search_or = (terms, $row) ->
 		else
 			branch_passed = choose_op(term, $row)
 			if branch_passed
-				return true;
+				return true
 
 	return false
 
@@ -85,10 +85,10 @@ choose_op = (parameter, $row) ->
 
 class TableClass
 	@VERSION: '0.0.1'
-	comparators: comparators
-	constructor: ($table, opt) ->
+	equalityComparators: equalityComparators
+	constructor: (@$table, opt) ->
 		options = $.extend(options, opt)
-		@$rows = $table.find('tbody tr')
+		@$rows = @$table.find('tbody tr')
 
 		@setEqualityComparator options.equalityComparator
 
@@ -96,7 +96,7 @@ class TableClass
 	setEqualityComparator: (comparator) ->
 		type = Object.prototype.toString.call(comparator)
 		if type is '[object String]'
-			options.equalityComparator = @comparators[comparator]
+			options.equalityComparator = @equalityComparators[comparator]
 		else
 			options.equalityComparator = comparator
 		return
@@ -105,9 +105,12 @@ class TableClass
 
 	search: (searchparams) ->
 
+		@$rows.detach()
+
 		@$rows.removeClass(options.hiddenClass)
 
 		if not searchparams?.terms?.length
+			@$table.find('tbody').append(@$rows)
 			return
 
 		for row in @$rows
@@ -117,6 +120,9 @@ class TableClass
 
 			if not passed
 				$row.addClass(options.hiddenClass)
+
+		@$table.find('tbody').append(@$rows)
+
 		return
 
 

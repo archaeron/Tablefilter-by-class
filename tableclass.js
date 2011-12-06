@@ -1,12 +1,12 @@
 (function() {
-  var TableClass, choose_op, comparators, exports, options, search_and, search_in_element, search_in_row, search_or;
+  var TableClass, choose_op, equalityComparators, exports, options, search_and, search_in_element, search_in_row, search_or;
 
   options = {
     hiddenClass: 'hidden',
     equalityComparator: 'ignoreCase'
   };
 
-  comparators = {
+  equalityComparators = {
     ignoreCase: function(query, value) {
       query = query.toLowerCase();
       value = value.toLowerCase();
@@ -25,7 +25,7 @@
       value = value ? value : $element.text();
     } else {
       value = additional_data[label];
-      if (value === null) value = '';
+      if (!(value != null)) value = '';
     }
     return options.equalityComparator(query, value);
   };
@@ -92,11 +92,12 @@
 
     TableClass.VERSION = '0.0.1';
 
-    TableClass.prototype.comparators = comparators;
+    TableClass.prototype.equalityComparators = equalityComparators;
 
     function TableClass($table, opt) {
+      this.$table = $table;
       options = $.extend(options, opt);
-      this.$rows = $table.find('tbody tr');
+      this.$rows = this.$table.find('tbody tr');
       this.setEqualityComparator(options.equalityComparator);
     }
 
@@ -104,7 +105,7 @@
       var type;
       type = Object.prototype.toString.call(comparator);
       if (type === '[object String]') {
-        options.equalityComparator = this.comparators[comparator];
+        options.equalityComparator = this.equalityComparators[comparator];
       } else {
         options.equalityComparator = comparator;
       }
@@ -112,8 +113,10 @@
 
     TableClass.prototype.search = function(searchparams) {
       var $row, passed, row, _i, _len, _ref, _ref2;
+      this.$rows.detach();
       this.$rows.removeClass(options.hiddenClass);
       if (!(searchparams != null ? (_ref = searchparams.terms) != null ? _ref.length : void 0 : void 0)) {
+        this.$table.find('tbody').append(this.$rows);
         return;
       }
       _ref2 = this.$rows;
@@ -123,6 +126,7 @@
         passed = choose_op(searchparams, $row);
         if (!passed) $row.addClass(options.hiddenClass);
       }
+      this.$table.find('tbody').append(this.$rows);
     };
 
     return TableClass;
