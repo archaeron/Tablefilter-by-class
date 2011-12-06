@@ -40,7 +40,6 @@ search_and = (terms, $row) ->
 	for term in terms
 
 		if not term.operation?
-			
 
 			if term.whole_row
 				if not search_in_row(term.value, $row, additional_data)
@@ -50,11 +49,34 @@ search_and = (terms, $row) ->
 					return false
 
 		else
-			passed_branch = choose_op(term, $row)
-			if not passed_branch
-				return false;
+			branch_passed = choose_op(term, $row)
+			if not branch_passed
+				return false
 
-	return true;
+	return true
+
+search_or = (terms, $row) ->
+
+	additional_data = $row.attr('data-additional-data')
+	additional_data = JSON.parse(additional_data)
+
+	for term in terms
+
+		if not term.operation?
+
+			if term.whole_row
+				if search_in_row(term.value, $row, additional_data)
+					return true
+			else
+				if search_in_element(term.value, term.name, $row, additional_data)
+					# break loop
+					return true
+		else
+			branch_passed = choose_op(term, $row)
+			if branch_passed
+				return true;
+
+	return false
 
 choose_op = (parameter, $row) ->
 	switch parameter.operation

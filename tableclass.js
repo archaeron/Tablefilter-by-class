@@ -1,5 +1,5 @@
 (function() {
-  var TableClass, choose_op, comparators, exports, options, search_and, search_in_element, search_in_row;
+  var TableClass, choose_op, comparators, exports, options, search_and, search_in_element, search_in_row, search_or;
 
   options = {
     hiddenClass: 'hidden',
@@ -37,7 +37,7 @@
   };
 
   search_and = function(terms, $row) {
-    var additional_data, passed_branch, term, _i, _len;
+    var additional_data, branch_passed, term, _i, _len;
     additional_data = $row.attr('data-additional-data');
     additional_data = JSON.parse(additional_data);
     for (_i = 0, _len = terms.length; _i < _len; _i++) {
@@ -51,11 +51,33 @@
           }
         }
       } else {
-        passed_branch = choose_op(term, $row);
-        if (!passed_branch) return false;
+        branch_passed = choose_op(term, $row);
+        if (!branch_passed) return false;
       }
     }
     return true;
+  };
+
+  search_or = function(terms, $row) {
+    var additional_data, branch_passed, term, _i, _len;
+    additional_data = $row.attr('data-additional-data');
+    additional_data = JSON.parse(additional_data);
+    for (_i = 0, _len = terms.length; _i < _len; _i++) {
+      term = terms[_i];
+      if (!(term.operation != null)) {
+        if (term.whole_row) {
+          if (search_in_row(term.value, $row, additional_data)) return true;
+        } else {
+          if (search_in_element(term.value, term.name, $row, additional_data)) {
+            return true;
+          }
+        }
+      } else {
+        branch_passed = choose_op(term, $row);
+        if (branch_passed) return true;
+      }
+    }
+    return false;
   };
 
   choose_op = function(parameter, $row) {
