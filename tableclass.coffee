@@ -1,18 +1,44 @@
-
+#you can set different options on start up
 options =
 	hiddenClass: 'hidden'
 	equalityComparator: 'ignoreCase'
+	inequalityComparator: 'easy'
 
+#the equality comparators, that will be used most of the time
 equalityComparators =
+	#true if value matches query ignoring the case ('Hello' = 'HeLlO')
 	ignoreCase: (query, value) ->
 		query = query.toLowerCase()
 		value = value.toLowerCase()
-		return value.indexOf(query) > -1
+		return ~value.indexOf(query)
+	#true if value matches query, case-sensitive ('Hello' != 'hello')
 	useCase: (query, value) ->
-		return value.indexOf(query) > -1
+		return ~value.indexOf(query)
+		
+#this will be used if you use an inequality comparison, like: '>', '<' 
+inequalityComparators =
+	easy: (query, value) ->
+		return value > query
 
-
-search_in_element = (query, label, $row, additional_data) ->
+#returns the right comparator
+choose_comparator = (inequality) ->
+	switch inequality
+		when '>' then return options.inequalityComparator
+		when '>='
+			return (query, value) ->
+				return (options.inequalityComparator(query, value) or options.equalityComparator(query, value))
+		when '<'
+			return (query, value) ->
+				return not (options.inequalityComparator(query, value) or options.equalityComparator(query, value))
+		when '<='
+			return (query, value) ->
+				return not options.inequalityComparator(query, value)
+		else return options.equalityComparator
+	
+search_in_element = (term, $row, additional_data) ->
+	query = term.value
+	label = term.name
+	
 	$element = $row.find('.'+label)
 
 	if $element.length
@@ -24,16 +50,20 @@ search_in_element = (query, label, $row, additional_data) ->
 		value = additional_data[label]
 		if not value?
 			value = ''
+	
+	if not term.comparator?
+		comparator = choose_comparator(term.inequality)
+		term.comparator = comparator
 
-	return options.equalityComparator(query, value)
+	return term.comparator(query, value)
 
-search_in_row = (query, $row) ->
+search_in_row = (term, $row) ->
+	query = term.value
 	value = $row.text()
-
+	
 	return options.equalityComparator(query, value)
 
 search_and = (terms, $row) ->
-
 	additional_data = $row.attr('data-additional-data')
 	additional_data = JSON.parse(additional_data)
 
@@ -42,10 +72,10 @@ search_and = (terms, $row) ->
 		if not term.operation?
 
 			if term.whole_row
-				if not search_in_row(term.value, $row, additional_data)
+				if not search_in_row(term, $row, additional_data)
 					return false
 			else
-				if not search_in_element(term.value, term.name, $row, additional_data)
+				if not search_in_element(term, $row, additional_data)
 					return false
 
 		else
@@ -56,7 +86,6 @@ search_and = (terms, $row) ->
 	return true
 
 search_or = (terms, $row) ->
-
 	additional_data = $row.attr('data-additional-data')
 	additional_data = JSON.parse(additional_data)
 
@@ -65,11 +94,10 @@ search_or = (terms, $row) ->
 		if not term.operation?
 
 			if term.whole_row
-				if search_in_row(term.value, $row, additional_data)
+				if search_in_row(term, $row, additional_data)
 					return true
 			else
-				if search_in_element(term.value, term.name, $row, additional_data)
-					# break loop
+				if search_in_element(term, $row, additional_data)
 					return true
 		else
 			branch_passed = choose_op(term, $row)
@@ -81,16 +109,18 @@ search_or = (terms, $row) ->
 choose_op = (parameter, $row) ->
 	switch parameter.operation
 		when 'and' then return search_and(parameter.terms, $row)
-		when 'or' then #TODO return search_or(parameter.terms, $row)
+		when 'or' then return search_or(parameter.terms, $row)
 
 class TableClass
 	@VERSION: '0.0.1'
 	equalityComparators: equalityComparators
+	inequalityComparators: inequalityComparators
 	constructor: (@$table, opt) ->
 		options = $.extend(options, opt)
 		@$rows = @$table.find('tbody tr')
 
 		@setEqualityComparator options.equalityComparator
+		@setInequalityComparator options.inequalityComparator
 
 
 	setEqualityComparator: (comparator) ->
@@ -101,7 +131,13 @@ class TableClass
 			options.equalityComparator = comparator
 		return
 
-
+	setInequalityComparator: (comparator) ->
+		type = Object.prototype.toString.call(comparator)
+		if type is '[object String]'
+			options.inequalityComparator = @inequalityComparators[comparator]
+		else
+			options.inequalityComparator = comparator
+		return
 
 	search: (searchparams) ->
 

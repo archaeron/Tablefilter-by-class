@@ -1,0 +1,162 @@
+<!DOCTYPE html>  <html> <head>   <title>tableclass.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               tableclass.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>you can set different options on start up</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">options =</span>
+	<span class="nv">hiddenClass: </span><span class="s1">&#39;hidden&#39;</span>
+	<span class="nv">equalityComparator: </span><span class="s1">&#39;ignoreCase&#39;</span>
+	<span class="nv">inequalityComparator: </span><span class="s1">&#39;easy&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>the equality comparators, that will be used most of the time</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">equalityComparators =</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>true if value matches query ignoring the case ('Hello' = 'HeLlO')</p>             </td>             <td class="code">               <div class="highlight"><pre>	<span class="nv">ignoreCase: </span><span class="nf">(query, value) -&gt;</span>
+		<span class="nv">query = </span><span class="nx">query</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
+		<span class="nv">value = </span><span class="nx">value</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
+		<span class="k">return</span> <span class="o">~</span><span class="nx">value</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>true if value matches query, case-sensitive ('Hello' != 'hello')</p>             </td>             <td class="code">               <div class="highlight"><pre>	<span class="nv">useCase: </span><span class="nf">(query, value) -&gt;</span>
+		<span class="k">return</span> <span class="o">~</span><span class="nx">value</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="nx">query</span><span class="p">)</span>
+		
+<span class="nv">inequalityComparators =</span>
+	<span class="nv">easy: </span><span class="nf">(query, value) -&gt;</span>
+			
+		<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;&quot;%s&quot; &quot;%s&quot;&#39;</span><span class="p">,</span> <span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">value</span> <span class="o">&gt;</span> <span class="nx">query</span>
+
+<span class="nv">choose_comparator = </span><span class="nf">(inequality) -&gt;</span>
+	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;ineq&#39;</span><span class="p">,</span> <span class="nx">inequality</span><span class="p">)</span>
+	<span class="k">switch</span> <span class="nx">inequality</span>
+		<span class="k">when</span> <span class="s1">&#39;&gt;&#39;</span> <span class="k">then</span> <span class="k">return</span> <span class="nx">options</span><span class="p">.</span><span class="nx">inequalityComparator</span>
+		<span class="k">when</span> <span class="s1">&#39;&gt;=&#39;</span>
+			<span class="k">return</span> <span class="nf">(query, value) -&gt;</span>
+				<span class="k">return</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">inequalityComparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="o">or</span> <span class="nx">options</span><span class="p">.</span><span class="nx">equalityComparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">))</span>
+		<span class="k">when</span> <span class="s1">&#39;&lt;&#39;</span>
+			<span class="k">return</span> <span class="nf">(query, value) -&gt;</span>
+				<span class="k">return</span> <span class="o">not</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">inequalityComparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="o">or</span> <span class="nx">options</span><span class="p">.</span><span class="nx">equalityComparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">))</span>
+		<span class="k">when</span> <span class="s1">&#39;&lt;=&#39;</span>
+			<span class="k">return</span> <span class="nf">(query, value) -&gt;</span>
+				<span class="k">return</span> <span class="o">not</span> <span class="nx">options</span><span class="p">.</span><span class="nx">inequalityComparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span>
+		<span class="k">else</span> <span class="k">return</span> <span class="nx">options</span><span class="p">.</span><span class="nx">equalityComparator</span>
+	
+<span class="nv">search_in_element = </span><span class="nf">(term, $row, additional_data) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>console.log 'term', term</p>             </td>             <td class="code">               <div class="highlight"><pre>	<span class="nv">query = </span><span class="nx">term</span><span class="p">.</span><span class="nx">value</span>
+	<span class="nv">label = </span><span class="nx">term</span><span class="p">.</span><span class="nx">name</span>
+	
+	<span class="nv">$element = </span><span class="nx">$row</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="nx">label</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="nx">$element</span><span class="p">.</span><span class="nx">length</span>
+		<span class="nv">value = </span><span class="nx">$element</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;data-value&#39;</span><span class="p">)</span>
+
+		<span class="nv">value = </span><span class="k">if</span> <span class="nx">value</span> <span class="k">then</span> <span class="nx">value</span> <span class="k">else</span> <span class="nx">$element</span><span class="p">.</span><span class="nx">text</span><span class="p">()</span>
+
+	<span class="k">else</span>
+		<span class="nv">value = </span><span class="nx">additional_data</span><span class="p">[</span><span class="nx">label</span><span class="p">]</span>
+		<span class="k">if</span> <span class="o">not</span> <span class="nx">value</span><span class="o">?</span>
+			<span class="nv">value = </span><span class="s1">&#39;&#39;</span>
+	</pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>console.log('op', choose_comparator(term.inequality))</p>             </td>             <td class="code">               <div class="highlight"><pre>	<span class="k">if</span> <span class="o">not</span> <span class="nx">term</span><span class="p">.</span><span class="nx">comparator</span><span class="o">?</span>
+		<span class="nv">comparator = </span><span class="nx">choose_comparator</span><span class="p">(</span><span class="nx">term</span><span class="p">.</span><span class="nx">inequality</span><span class="p">)</span>
+		<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">comparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">))</span>
+		<span class="nv">term.comparator = </span><span class="nx">comparator</span>
+
+	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">term</span><span class="p">.</span><span class="nx">comparator</span>
+	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">term</span><span class="p">.</span><span class="nx">comparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">));</span>
+	<span class="k">return</span> <span class="nx">term</span><span class="p">.</span><span class="nx">comparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span>
+
+<span class="nv">search_in_row = </span><span class="nf">(term, $row) -&gt;</span>
+	<span class="nv">query = </span><span class="nx">term</span><span class="p">.</span><span class="nx">value</span>
+	<span class="nv">value = </span><span class="nx">$row</span><span class="p">.</span><span class="nx">text</span><span class="p">()</span>
+	
+	<span class="k">return</span> <span class="nx">options</span><span class="p">.</span><span class="nx">equalityComparator</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span>
+
+<span class="nv">search_and = </span><span class="nf">(terms, $row) -&gt;</span>
+	<span class="nv">additional_data = </span><span class="nx">$row</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;data-additional-data&#39;</span><span class="p">)</span>
+	<span class="nv">additional_data = </span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">additional_data</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="nx">term</span> <span class="k">in</span> <span class="nx">terms</span>
+
+		<span class="k">if</span> <span class="o">not</span> <span class="nx">term</span><span class="p">.</span><span class="nx">operation</span><span class="o">?</span>
+
+			<span class="k">if</span> <span class="nx">term</span><span class="p">.</span><span class="nx">whole_row</span>
+				<span class="k">if</span> <span class="o">not</span> <span class="nx">search_in_row</span><span class="p">(</span><span class="nx">term</span><span class="p">,</span> <span class="nx">$row</span><span class="p">,</span> <span class="nx">additional_data</span><span class="p">)</span>
+					<span class="k">return</span> <span class="kc">false</span>
+			<span class="k">else</span>
+				<span class="k">if</span> <span class="o">not</span> <span class="nx">search_in_element</span><span class="p">(</span><span class="nx">term</span><span class="p">,</span> <span class="nx">$row</span><span class="p">,</span> <span class="nx">additional_data</span><span class="p">)</span>
+					<span class="k">return</span> <span class="kc">false</span>
+
+		<span class="k">else</span>
+			<span class="nv">branch_passed = </span><span class="nx">choose_op</span><span class="p">(</span><span class="nx">term</span><span class="p">,</span> <span class="nx">$row</span><span class="p">)</span>
+			<span class="k">if</span> <span class="o">not</span> <span class="nx">branch_passed</span>
+				<span class="k">return</span> <span class="kc">false</span>
+
+	<span class="k">return</span> <span class="kc">true</span>
+
+<span class="nv">search_or = </span><span class="nf">(terms, $row) -&gt;</span>
+	<span class="nv">additional_data = </span><span class="nx">$row</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;data-additional-data&#39;</span><span class="p">)</span>
+	<span class="nv">additional_data = </span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">additional_data</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="nx">term</span> <span class="k">in</span> <span class="nx">terms</span>
+
+		<span class="k">if</span> <span class="o">not</span> <span class="nx">term</span><span class="p">.</span><span class="nx">operation</span><span class="o">?</span>
+
+			<span class="k">if</span> <span class="nx">term</span><span class="p">.</span><span class="nx">whole_row</span>
+				<span class="k">if</span> <span class="nx">search_in_row</span><span class="p">(</span><span class="nx">term</span><span class="p">,</span> <span class="nx">$row</span><span class="p">,</span> <span class="nx">additional_data</span><span class="p">)</span>
+					<span class="k">return</span> <span class="kc">true</span>
+			<span class="k">else</span>
+				<span class="k">if</span> <span class="nx">search_in_element</span><span class="p">(</span><span class="nx">term</span><span class="p">,</span> <span class="nx">$row</span><span class="p">,</span> <span class="nx">additional_data</span><span class="p">)</span>
+					<span class="k">return</span> <span class="kc">true</span>
+		<span class="k">else</span>
+			<span class="nv">branch_passed = </span><span class="nx">choose_op</span><span class="p">(</span><span class="nx">term</span><span class="p">,</span> <span class="nx">$row</span><span class="p">)</span>
+			<span class="k">if</span> <span class="nx">branch_passed</span>
+				<span class="k">return</span> <span class="kc">true</span>
+
+	<span class="k">return</span> <span class="kc">false</span>
+
+<span class="nv">choose_op = </span><span class="nf">(parameter, $row) -&gt;</span>
+	<span class="k">switch</span> <span class="nx">parameter</span><span class="p">.</span><span class="nx">operation</span>
+		<span class="k">when</span> <span class="s1">&#39;and&#39;</span> <span class="k">then</span> <span class="k">return</span> <span class="nx">search_and</span><span class="p">(</span><span class="nx">parameter</span><span class="p">.</span><span class="nx">terms</span><span class="p">,</span> <span class="nx">$row</span><span class="p">)</span>
+		<span class="k">when</span> <span class="s1">&#39;or&#39;</span> <span class="k">then</span> <span class="k">return</span> <span class="nx">search_or</span><span class="p">(</span><span class="nx">parameter</span><span class="p">.</span><span class="nx">terms</span><span class="p">,</span> <span class="nx">$row</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nx">TableClass</span>
+	<span class="vi">@VERSION: </span><span class="s1">&#39;0.0.1&#39;</span>
+	<span class="nv">equalityComparators: </span><span class="nx">equalityComparators</span>
+	<span class="nv">inequalityComparators: </span><span class="nx">inequalityComparators</span>
+	<span class="nv">constructor: </span><span class="nf">(@$table, opt) -&gt;</span>
+		<span class="nv">options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="nx">opt</span><span class="p">)</span>
+		<span class="vi">@$rows = </span><span class="nx">@$table</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;tbody tr&#39;</span><span class="p">)</span>
+
+		<span class="nx">@setEqualityComparator</span> <span class="nx">options</span><span class="p">.</span><span class="nx">equalityComparator</span>
+		<span class="nx">@setInequalityComparator</span> <span class="nx">options</span><span class="p">.</span><span class="nx">inequalityComparator</span>
+
+
+	<span class="nv">setEqualityComparator: </span><span class="nf">(comparator) -&gt;</span>
+		<span class="nv">type = </span><span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">comparator</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nx">type</span> <span class="o">is</span> <span class="s1">&#39;[object String]&#39;</span>
+			<span class="nv">options.equalityComparator = </span><span class="nx">@equalityComparators</span><span class="p">[</span><span class="nx">comparator</span><span class="p">]</span>
+		<span class="k">else</span>
+			<span class="nv">options.equalityComparator = </span><span class="nx">comparator</span>
+		<span class="k">return</span>
+
+	<span class="nv">setInequalityComparator: </span><span class="nf">(comparator) -&gt;</span>
+		<span class="nv">type = </span><span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">toString</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">comparator</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nx">type</span> <span class="o">is</span> <span class="s1">&#39;[object String]&#39;</span>
+			<span class="nv">options.inequalityComparator = </span><span class="nx">@inequalityComparators</span><span class="p">[</span><span class="nx">comparator</span><span class="p">]</span>
+		<span class="k">else</span>
+			<span class="nv">options.inequalityComparator = </span><span class="nx">comparator</span>
+		<span class="k">return</span>
+
+	<span class="nv">search: </span><span class="nf">(searchparams) -&gt;</span>
+
+		<span class="nx">@$rows</span><span class="p">.</span><span class="nx">detach</span><span class="p">()</span>
+
+		<span class="nx">@$rows</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">hiddenClass</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="o">not</span> <span class="nx">searchparams</span><span class="o">?</span><span class="p">.</span><span class="nx">terms</span><span class="o">?</span><span class="p">.</span><span class="nx">length</span>
+			<span class="nx">@$table</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;tbody&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">@$rows</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="k">for</span> <span class="nx">row</span> <span class="k">in</span> <span class="nx">@$rows</span>
+			<span class="nv">$row = </span><span class="nx">$</span><span class="p">(</span><span class="nx">row</span><span class="p">)</span>
+
+			<span class="nv">passed = </span><span class="nx">choose_op</span><span class="p">(</span><span class="nx">searchparams</span><span class="p">,</span> <span class="nx">$row</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="o">not</span> <span class="nx">passed</span>
+				<span class="nx">$row</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">hiddenClass</span><span class="p">)</span>
+
+		<span class="nx">@$table</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s1">&#39;tbody&#39;</span><span class="p">).</span><span class="nx">append</span><span class="p">(</span><span class="nx">@$rows</span><span class="p">)</span>
+
+		<span class="k">return</span>
+
+
+<span class="nv">exports = </span><span class="k">this</span>
+<span class="nv">exports.TableClass = </span><span class="nx">TableClass</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
