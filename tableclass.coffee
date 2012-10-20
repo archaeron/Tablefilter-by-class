@@ -9,13 +9,18 @@ equalityComparators =
 	#true if value matches query ignoring the case ('Hello' = 'HeLlO')
 	ignoreCase: (query, value) ->
 		query = query.toLowerCase()
-		value = value.toLowerCase()
+
+		if not value instanceof Array
+			value = value.toLowerCase()
+
 		return ~value.indexOf(query)
+
+
 	#true if value matches query, case-sensitive ('Hello' != 'hello')
 	useCase: (query, value) ->
 		return ~value.indexOf(query)
-		
-#this will be used if you use an inequality comparison, like: '>', '<' 
+
+#this will be used if you use an inequality comparison, like: '>', '<'
 inequalityComparators =
 	easy: (query, value) ->
 		return value > query
@@ -34,11 +39,11 @@ choose_comparator = (inequality) ->
 			return (query, value) ->
 				return not options.inequalityComparator(query, value)
 		else return options.equalityComparator
-	
+
 search_in_element = (term, $row, additional_data) ->
 	query = term.value
 	label = term.name
-	
+
 	$element = $row.find('.'+label)
 
 	if $element.length
@@ -50,7 +55,7 @@ search_in_element = (term, $row, additional_data) ->
 		value = additional_data[label]
 		if not value?
 			value = ''
-	
+
 	if not term.comparator?
 		comparator = choose_comparator(term.inequality)
 		term.comparator = comparator
@@ -60,7 +65,7 @@ search_in_element = (term, $row, additional_data) ->
 search_in_row = (term, $row) ->
 	query = term.value
 	value = $row.text()
-	
+
 	return options.equalityComparator(query, value)
 
 search_and = (terms, $row) ->
