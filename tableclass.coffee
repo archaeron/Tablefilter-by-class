@@ -13,12 +13,12 @@ equalityComparators =
 		if not (value instanceof Array)
 			value = value.toLowerCase()
 
-		return ~value.indexOf(query)
+		return !!~value.indexOf(query)
 
 
 	#true if value matches query, case-sensitive ('Hello' != 'hello')
 	useCase: (query, value) ->
-		return ~value.indexOf(query)
+		return !!~value.indexOf(query)
 
 #this will be used if you use an inequality comparison, like: '>', '<'
 inequalityComparators =

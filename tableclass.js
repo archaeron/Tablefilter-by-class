@@ -14,10 +14,10 @@
       if (!(value instanceof Array)) {
         value = value.toLowerCase();
       }
-      return ~value.indexOf(query);
+      return !!~value.indexOf(query);
     },
     useCase: function(query, value) {
-      return ~value.indexOf(query);
+      return !!~value.indexOf(query);
     }
   };
 
