@@ -10,7 +10,7 @@ equalityComparators =
 	ignoreCase: (query, value) ->
 		query = query.toLowerCase()
 
-		if not value instanceof Array
+		if not (value instanceof Array)
 			value = value.toLowerCase()
 
 		return ~value.indexOf(query)
